@@ -2,6 +2,8 @@
 
 import argparse
 
+import torch
+
 # downloaded from https://www.dbnl.org/nieuws/text.php?id=coup002elin01
 with open("dbnl.coup002elin01.txt", encoding="utf-8") as file:
     text = file.read()
@@ -22,7 +24,22 @@ def build_tokenizer(text: str) -> tuple[int, dict[str, int], dict[int, str]]:
     return len(chars), s_to_i, i_to_s
 
 
+def build_data_split(
+    text: str,
+) -> tuple[
+    torch.Tensor,
+    torch.Tensor,
+    torch.Tensor,
+]:
+    data = torch.tensor(encode(text), dtype=torch.long)
+    split_index = int(0.9 * len(data))
+    train_data = data[:split_index]
+    val_data = data[split_index:]
+    return train_data, val_data, data
+
+
 vocab_size, s_to_i, i_to_s = build_tokenizer(text)
+train_data, val_data, data = build_data_split(text)
 
 
 def parse_args() -> argparse.Namespace:
@@ -50,6 +67,7 @@ def main() -> None:
         raise SystemExit("Provide a value to encode or decode.")
 
     print(f"vocab_size={vocab_size}")
+    print(f"train={len(train_data)}, val={len(val_data)}, total={len(data)}")
 
     if args.mode == "encode":
         print(encode(args.value))
