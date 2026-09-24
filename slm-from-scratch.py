@@ -6,12 +6,6 @@ import argparse
 with open("dbnl.coup002elin01.txt", encoding="utf-8") as file:
     text = file.read()
 
-chars = sorted(set(text))
-vocab_size = len(chars)
-
-s_to_i = {c: i for i, c in enumerate(chars)}
-i_to_s = {i: c for c, i in s_to_i.items()}
-
 
 def encode(s: str) -> list[int]:
     return [s_to_i[c] for c in s]
@@ -19,6 +13,16 @@ def encode(s: str) -> list[int]:
 
 def decode(ids: list[int]) -> str:
     return "".join(i_to_s[i] for i in ids)
+
+
+def build_tokenizer(text: str) -> tuple[int, dict[str, int], dict[int, str]]:
+    chars = sorted(set(text))
+    s_to_i = {c: i for i, c in enumerate(chars)}
+    i_to_s = {i: c for c, i in s_to_i.items()}
+    return len(chars), s_to_i, i_to_s
+
+
+vocab_size, s_to_i, i_to_s = build_tokenizer(text)
 
 
 def parse_args() -> argparse.Namespace:
